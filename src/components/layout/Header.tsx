@@ -2,6 +2,7 @@ import React from 'react';
 import { Search, Bell, Menu, Sun, Moon } from 'lucide-react';
 import { useTasks } from '../../context/TaskContext';
 import { Avatar } from '../ui/Common';
+import { useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -9,7 +10,16 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { data, activeProjectId, preferences, setPreferences } = useTasks();
+  const location = useLocation();
   const activeProject = data.projects.find(p => p.id === activeProjectId);
+
+  const getTitle = () => {
+    if (location.pathname === '/') return 'Overview';
+    if (location.pathname === '/my-tasks') return 'My Tasks';
+    if (location.pathname === '/dashboard') return activeProject?.name || 'Board';
+    if (location.pathname === '/settings') return 'Settings';
+    return 'TaskFlow';
+  };
 
   return (
     <header className="h-[60px] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30 transition-colors duration-300">
@@ -21,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <Menu size={20} />
         </button>
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white hidden sm:block">
-          {activeProject?.name || 'Dashboard'}
+          {getTitle()}
         </h2>
       </div>
 

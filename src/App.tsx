@@ -3,6 +3,7 @@ import { TaskProvider } from './context/TaskContext';
 import { AppLayout } from './components/layout/AppLayout';
 import Dashboard from './pages/Dashboard';
 import MyTasks from './pages/MyTasks';
+import Overview from './pages/Overview';
 import Login from './pages/Login';
 import { Settings } from './pages/Settings';
 
@@ -13,7 +14,8 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<AppLayout />}>
-            <Route index element={<Dashboard />} />
+            <Route index element={<Overview />} />
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="my-tasks" element={<MyTasks />} />
             <Route path="settings" element={<Settings />} />
           </Route>

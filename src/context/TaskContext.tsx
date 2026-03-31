@@ -17,6 +17,8 @@ interface TaskContextType {
   deleteTask: (taskId: string) => void;
   addComment: (taskId: string, text: string) => void;
   addStatus: (title: string) => void;
+  updateStatus: (statusId: string, updates: Partial<Status>) => void;
+  deleteStatus: (statusId: string) => void;
   addProject: (name: string) => void;
   preferences: UserPreferences;
   setPreferences: (prefs: Partial<UserPreferences>) => void;
@@ -121,6 +123,28 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
+  const updateStatus = (statusId: string, updates: Partial<Status>) => {
+    setData(prev => ({
+      ...prev,
+      statuses: prev.statuses.map(s => s.id === statusId ? { ...s, ...updates } : s)
+    }));
+  };
+
+  const deleteStatus = (statusId: string) => {
+    setData(prev => {
+      const remainingStatuses = prev.statuses
+        .filter(s => s.id !== statusId)
+        .sort((a, b) => a.order - b.order)
+        .map((s, index) => ({ ...s, order: index }));
+
+      return {
+        ...prev,
+        statuses: remainingStatuses,
+        tasks: prev.tasks.filter(t => t.statusId !== statusId)
+      };
+    });
+  };
+
   const addProject = (name: string) => {
     const newProject: Project = {
       id: `p${Date.now()}`,
@@ -144,6 +168,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       deleteTask,
       addComment,
       addStatus,
+      updateStatus,
+      deleteStatus,
       addProject,
       preferences,
       setPreferences,

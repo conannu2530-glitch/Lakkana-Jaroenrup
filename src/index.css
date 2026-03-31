@@ -4,8 +4,6 @@
   --dark-mode: selector;
 }
 
-@variant dark (&:where(.dark, .dark *));
-
 @layer base {
   :root {
     color-scheme: light;
@@ -15,14 +13,13 @@
     color-scheme: dark;
   }
 
-  .dark body {
-    background-color: #020617;
-    color: #f8fafc;
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased transition-colors duration-300;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  body {
-    @apply text-slate-900 antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  .dark body {
+    @apply bg-slate-950 text-slate-50;
   }
 }
 

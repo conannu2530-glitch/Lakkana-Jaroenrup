@@ -27,44 +27,44 @@ export const Settings: React.FC = () => {
     <div className="max-w-4xl mx-auto p-4 lg:p-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h1>
         <div className="relative w-full md:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input 
             type="text" 
             placeholder="Search tasks..." 
-            className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-500 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-200 dark:placeholder:text-slate-500"
           />
         </div>
       </div>
 
       <div className="space-y-6">
         {/* Profile Settings */}
-        <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="p-6">
             <div className="flex items-center gap-3 mb-1">
               <User size={20} className="text-blue-600" />
-              <h2 className="text-lg font-semibold text-slate-900">Profile Settings</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Profile Settings</h2>
             </div>
-            <p className="text-sm text-slate-500 mb-6">Manage your profile information</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Manage your profile information</p>
             
             <div className="space-y-4 max-w-md">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
                 <input 
                   type="text" 
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-transparent dark:text-slate-200"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-transparent dark:text-slate-200"
                 />
               </div>
               <Button className="mt-2">Save Changes</Button>
@@ -73,13 +73,13 @@ export const Settings: React.FC = () => {
         </section>
 
         {/* Notifications */}
-        <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="p-6">
             <div className="flex items-center gap-3 mb-1">
               <Bell size={20} className="text-blue-600" />
-              <h2 className="text-lg font-semibold text-slate-900">Notifications</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Notifications</h2>
             </div>
-            <p className="text-sm text-slate-500 mb-6">Manage your notification preferences</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Manage your notification preferences</p>
             
             <div className="space-y-4">
               <ToggleItem 
@@ -107,13 +107,13 @@ export const Settings: React.FC = () => {
         </section>
 
         {/* Preferences */}
-        <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="p-6">
             <div className="flex items-center gap-3 mb-1">
               <Layout size={20} className="text-blue-600" />
-              <h2 className="text-lg font-semibold text-slate-900">Preferences</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Preferences</h2>
             </div>
-            <p className="text-sm text-slate-500 mb-6">Customize your experience</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Customize your experience</p>
             
             <div className="space-y-4">
               <ToggleItem 
@@ -143,11 +143,11 @@ interface ToggleItemProps {
 const ToggleItem: React.FC<ToggleItemProps> = ({ label, enabled, onToggle }) => {
   return (
     <div className="flex items-center justify-between py-2">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
       <button 
         onClick={onToggle}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-          enabled ? 'bg-blue-600' : 'bg-slate-200'
+          enabled ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'
         }`}
       >
         <span

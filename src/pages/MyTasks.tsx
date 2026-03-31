@@ -17,8 +17,8 @@ const MyTasks: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 lg:px-8 py-6">
-        <h1 className="text-2xl font-bold text-slate-900">My Tasks</h1>
-        <p className="text-sm text-slate-500">All tasks assigned to you across all projects.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Tasks</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">All tasks assigned to you across all projects.</p>
       </div>
 
       <div className="flex-1 min-h-0">

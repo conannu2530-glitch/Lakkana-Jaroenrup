@@ -8,6 +8,9 @@ import { motion } from 'motion/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '../../lib/utils';
+import { Modal } from '../ui/Modal';
+import { Button } from '../ui/Common';
+import { AlertTriangle } from 'lucide-react';
 
 interface TaskCardProps {
   task: Task;
@@ -17,6 +20,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isOverlay }) => {
   const { data, preferences, deleteTask } = useTasks();
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const assignee = data.users.find(u => u.id === task.assigneeId);
 
   const {
@@ -77,9 +81,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isOverlay }) 
           className="text-slate-400 dark:text-slate-600 opacity-0 group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-400 transition-opacity p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
           onClick={(e) => {
             e.stopPropagation();
-            if (window.confirm('Are you sure you want to delete this task?')) {
-              deleteTask(task.id);
-            }
+            setIsDeleting(true);
           }}
         >
           <Trash2 size={16} />
@@ -110,6 +112,37 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isOverlay }) 
           <Avatar src={assignee.avatar} name={assignee.name} size={preferences.compactView ? "xs" : "sm"} />
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleting}
+        onClose={() => setIsDeleting(false)}
+        title="Delete Task"
+      >
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 text-red-600">
+            <AlertTriangle size={24} />
+            <p className="font-medium">Are you sure you want to delete this task?</p>
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            This action cannot be undone. All data associated with this task will be permanently removed.
+          </p>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={() => setIsDeleting(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="danger" 
+              onClick={() => {
+                deleteTask(task.id);
+                setIsDeleting(false);
+              }}
+            >
+              Delete Task
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

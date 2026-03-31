@@ -14,9 +14,9 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const variants = {
     primary: 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm',
-    secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200',
-    outline: 'border border-slate-200 bg-transparent hover:bg-slate-50 text-slate-700',
-    ghost: 'bg-transparent hover:bg-slate-100 text-slate-600',
+    secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700',
+    outline: 'border border-slate-200 bg-transparent hover:bg-slate-50 text-slate-700 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800',
+    ghost: 'bg-transparent hover:bg-slate-100 text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100',
     danger: 'bg-red-500 text-white hover:bg-red-600 shadow-sm',
   };
 
@@ -42,11 +42,11 @@ export const Button: React.FC<ButtonProps> = ({
 
 export const Badge: React.FC<{ children: React.ReactNode, className?: string, color?: 'red' | 'yellow' | 'green' | 'blue' | 'gray' }> = ({ children, className, color = 'gray' }) => {
   const colors = {
-    red: 'bg-red-100 text-red-700',
-    yellow: 'bg-yellow-100 text-yellow-700',
-    green: 'bg-green-100 text-green-700',
-    blue: 'bg-blue-100 text-blue-700',
-    gray: 'bg-slate-100 text-slate-700',
+    red: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    yellow: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+    green: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    blue: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    gray: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400',
   };
 
   return (

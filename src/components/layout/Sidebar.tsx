@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CheckSquare, Settings, LogOut, FolderKanban, Menu, X, Plus } from 'lucide-react';
+import { LayoutGrid, CheckSquare, Settings, LogOut, FolderKanban, Menu, X, Plus, FolderPlus } from 'lucide-react';
 import { useTasks } from '../../context/TaskContext';
 import { cn } from '../../lib/utils';
+import { Modal } from '../ui/Modal';
+import { Button } from '../ui/Common';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,10 +13,13 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { data, activeProjectId, setActiveProjectId, addProject } = useTasks();
+  const [isAddingProject, setIsAddingProject] = React.useState(false);
+  const [newProjectName, setNewProjectName] = React.useState('');
 
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+    { icon: LayoutGrid, label: 'Overview', path: '/' },
     { icon: CheckSquare, label: 'My Tasks', path: '/my-tasks' },
+    { icon: FolderKanban, label: 'Board', path: '/dashboard' },
   ];
 
   return (
@@ -70,12 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <div className="flex items-center justify-between px-3 mb-2">
               <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Projects</h3>
               <button 
-                onClick={() => {
-                  const name = prompt('Enter project name:');
-                  if (name) {
-                    addProject(name);
-                  }
-                }}
+                onClick={() => setIsAddingProject(true)}
                 className="p-1 text-slate-400 hover:text-blue-500 dark:text-slate-500 dark:hover:text-blue-400 transition-colors"
                 title="Create Project"
               >
@@ -129,6 +129,58 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
       </aside>
+
+      {/* Add Project Modal */}
+      <Modal
+        isOpen={isAddingProject}
+        onClose={() => setIsAddingProject(false)}
+        title="Create New Project"
+      >
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 text-blue-600 mb-2">
+            <FolderPlus size={24} />
+            <p className="font-medium">Start a new project</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Project Name
+            </label>
+            <input
+              autoFocus
+              type="text"
+              placeholder="e.g., Website Redesign, Marketing Campaign"
+              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 bg-transparent dark:text-white"
+              value={newProjectName}
+              onChange={(e) => setNewProjectName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  if (newProjectName.trim()) {
+                    addProject(newProjectName.trim());
+                    setNewProjectName('');
+                    setIsAddingProject(false);
+                  }
+                }
+              }}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={() => setIsAddingProject(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (newProjectName.trim()) {
+                  addProject(newProjectName.trim());
+                  setNewProjectName('');
+                  setIsAddingProject(false);
+                }
+              }}
+            >
+              Create Project
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };
