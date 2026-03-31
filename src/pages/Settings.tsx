@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import { Search, Save, Bell, User, Settings as SettingsIcon, Moon, Layout } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Search, Save, Bell, User, Settings as SettingsIcon, Moon, Layout, Camera } from 'lucide-react';
 import { Button } from '../components/ui/Common';
 import { useTasks } from '../context/TaskContext';
 
 export const Settings: React.FC = () => {
-  const { data, preferences, setPreferences } = useTasks();
+  const { data, preferences, setPreferences, updateCurrentUser } = useTasks();
   const [fullName, setFullName] = useState(data.currentUser.name);
-  const [email, setEmail] = useState(data.currentUser.email);
+  const [email, setEmail] = useState(data.currentUser.email || '');
+  const [avatar, setAvatar] = useState(data.currentUser.avatar);
+  const [isSaved, setIsSaved] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [notifications, setNotifications] = useState({
     email: true,
@@ -14,6 +17,23 @@ export const Settings: React.FC = () => {
     taskUpdated: true,
     newComments: true,
   });
+
+  const handleSave = () => {
+    updateCurrentUser({ name: fullName, email, avatar });
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 3000);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const toggleNotification = (key: keyof typeof notifications) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
@@ -48,26 +68,80 @@ export const Settings: React.FC = () => {
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Manage your profile information</p>
             
-            <div className="space-y-4 max-w-md">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
-                <input 
-                  type="text" 
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-transparent dark:text-slate-200"
-                />
+            <div className="space-y-6 max-w-md">
+              {/* Avatar Upload */}
+              <div className="flex items-center gap-6">
+                <div className="relative group">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                    {avatar ? (
+                      <img 
+                        src={avatar} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-400">
+                        <User size={40} />
+                      </div>
+                    )}
+                  </div>
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                  >
+                    <Camera size={24} />
+                  </button>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    onChange={handleAvatarChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-slate-900 dark:text-white">Profile Picture</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Click the image to upload a new photo.</p>
+                  <Button 
+                    variant="ghost" 
+                    className="mt-2 text-xs h-8 px-3"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Change Photo
+                  </Button>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-transparent dark:text-slate-200"
-                />
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+                  <input 
+                    type="text" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-transparent dark:text-slate-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-transparent dark:text-slate-200"
+                  />
+                </div>
+                <div className="flex items-center gap-4 mt-2">
+                  <Button onClick={handleSave}>Save Changes</Button>
+                  {isSaved && (
+                    <span className="text-sm font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
+                      <Save size={16} />
+                      Changes saved!
+                    </span>
+                  )}
+                </div>
               </div>
-              <Button className="mt-2">Save Changes</Button>
             </div>
           </div>
         </section>

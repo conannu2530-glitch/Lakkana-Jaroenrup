@@ -223,15 +223,20 @@ export const TaskModal: React.FC<TaskModalProps> = ({ task: initialTask, onClose
                     <Calendar size={16} className="text-slate-400 dark:text-slate-500" />
                     <input 
                       type="date" 
-                      value={format(new Date(task.dueDate), 'yyyy-MM-dd')}
-                      onChange={(e) => updateTask(task.id, { dueDate: new Date(e.target.value).toISOString() })}
+                      value={task.dueDate ? format(new Date(task.dueDate), 'yyyy-MM-dd') : ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          updateTask(task.id, { dueDate: new Date(val).toISOString() });
+                        }
+                      }}
                       className="flex-1 bg-transparent border-none text-sm font-medium p-0 text-slate-900 dark:text-white focus:ring-0 [color-scheme:light] dark:[color-scheme:dark]"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-slate-100">
+              <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
                 <div className="space-y-3">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tags</label>
                   <div className="flex flex-wrap gap-2">

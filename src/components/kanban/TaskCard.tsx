@@ -56,15 +56,19 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isOverlay }) 
     );
   }
 
+  const isOverdue = task.statusId !== 's4' && new Date(task.dueDate).getTime() < new Date().getTime();
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={cn(
-        "bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 cursor-pointer hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all group relative touch-none",
+        "rounded-lg shadow-sm border transition-all group relative touch-none",
+        preferences.darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200",
         preferences.compactView ? "p-2.5" : "p-4",
         isOverlay && "shadow-xl border-blue-400 dark:border-blue-500 rotate-2 scale-105",
-        isDragging && !isOverlay && "opacity-0"
+        isDragging && !isOverlay && "opacity-0",
+        isOverdue && "border-red-200 dark:border-red-900/50"
       )}
       onClick={onClick}
       {...attributes}
@@ -76,6 +80,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isOverlay }) 
             <GripVertical size={14} />
           </div>
           <Badge color={priorityColors[task.priority]}>{task.priority}</Badge>
+          {isOverdue && <Badge color="red" className="text-[8px] px-1 py-0 uppercase">Overdue</Badge>}
         </div>
         <button 
           className="text-slate-400 dark:text-slate-600 opacity-0 group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-400 transition-opacity p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
@@ -97,7 +102,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, isOverlay }) 
 
       <div className={cn("flex items-center justify-between", preferences.compactView ? "mt-2" : "mt-4")}>
         <div className="flex items-center gap-3 text-slate-400 dark:text-slate-500">
-          <div className="flex items-center gap-1 text-[10px]">
+          <div className={cn(
+            "flex items-center gap-1 text-[10px]",
+            isOverdue ? "text-red-500 font-bold" : ""
+          )}>
             <Calendar size={12} />
             <span>{format(new Date(task.dueDate), 'MMM d')}</span>
           </div>

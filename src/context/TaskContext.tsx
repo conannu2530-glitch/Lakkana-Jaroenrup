@@ -11,7 +11,7 @@ interface TaskContextType {
   data: AppData;
   activeProjectId: string;
   setActiveProjectId: (id: string) => void;
-  addTask: (projectId: string, statusId: string, title: string) => void;
+  addTask: (projectId: string, statusId: string, title: string, dueDate?: string) => string;
   updateTask: (taskId: string, updates: Partial<Task>) => void;
   reorderTasks: (newTasks: Task[]) => void;
   deleteTask: (taskId: string) => void;
@@ -20,6 +20,7 @@ interface TaskContextType {
   updateStatus: (statusId: string, updates: Partial<Status>) => void;
   deleteStatus: (statusId: string) => void;
   addProject: (name: string) => void;
+  updateCurrentUser: (updates: Partial<User>) => void;
   preferences: UserPreferences;
   setPreferences: (prefs: Partial<UserPreferences>) => void;
   isLoading: boolean;
@@ -28,25 +29,54 @@ interface TaskContextType {
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [data, setData] = useState<AppData>(mockData);
-  const [activeProjectId, setActiveProjectId] = useState<string>(mockData.projects[0].id);
-  const [isLoading, setIsLoading] = useState(false);
-  const [preferences, setPreferencesState] = useState<UserPreferences>({
-    darkMode: false,
-    compactView: false,
+  const [data, setDataState] = useState<AppData>(() => {
+    const saved = localStorage.getItem('taskflow_data');
+    return saved ? JSON.parse(saved) : mockData;
   });
+  const [activeProjectId, setActiveProjectId] = useState<string>(data.projects[0].id);
+  const [isLoading, setIsLoading] = useState(false);
+  const [preferences, setPreferencesState] = useState<UserPreferences>(() => {
+    const saved = localStorage.getItem('taskflow_preferences');
+    return saved ? JSON.parse(saved) : {
+      darkMode: false,
+      compactView: false,
+    };
+  });
+
+  // Save preferences to localStorage
+  useEffect(() => {
+    localStorage.setItem('taskflow_preferences', JSON.stringify(preferences));
+  }, [preferences]);
+
+  // Save data to localStorage
+  useEffect(() => {
+    localStorage.setItem('taskflow_data', JSON.stringify(data));
+  }, [data]);
 
   // Apply dark mode
   useEffect(() => {
+    console.log('Dark mode preference changed:', preferences.darkMode);
+    const root = document.documentElement;
     if (preferences.darkMode) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
+      console.log('Added .dark class to html element');
+      console.log('Current html classes:', root.className);
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
+      console.log('Removed .dark class from html element');
+      console.log('Current html classes:', root.className);
     }
   }, [preferences.darkMode]);
 
   const setPreferences = (prefs: Partial<UserPreferences>) => {
     setPreferencesState(prev => ({ ...prev, ...prefs }));
+  };
+
+  const setData = (updateFn: (prev: AppData) => AppData) => {
+    setDataState(prev => {
+      const next = updateFn(prev);
+      return next;
+    });
   };
 
   // Simulate loading when project changes
@@ -56,7 +86,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearTimeout(timer);
   }, [activeProjectId]);
 
-  const addTask = (projectId: string, statusId: string, title: string) => {
+  const addTask = (projectId: string, statusId: string, title: string, dueDate?: string) => {
     const newTask: Task = {
       id: `t${Date.now()}`,
       projectId,
@@ -65,7 +95,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       description: '',
       assigneeId: data.currentUser.id,
       priority: 'Medium',
-      dueDate: new Date().toISOString(),
+      dueDate: dueDate || new Date().toISOString(),
       tags: [],
       comments: []
     };
@@ -73,6 +103,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...prev,
       tasks: [...prev.tasks, newTask]
     }));
+    return newTask.id;
   };
 
   const updateTask = (taskId: string, updates: Partial<Task>) => {
@@ -157,6 +188,14 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setActiveProjectId(newProject.id);
   };
 
+  const updateCurrentUser = (updates: Partial<User>) => {
+    setData(prev => ({
+      ...prev,
+      currentUser: { ...prev.currentUser, ...updates },
+      users: prev.users.map(u => u.id === prev.currentUser.id ? { ...u, ...updates } : u)
+    }));
+  };
+
   return (
     <TaskContext.Provider value={{ 
       data, 
@@ -171,6 +210,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateStatus,
       deleteStatus,
       addProject,
+      updateCurrentUser,
       preferences,
       setPreferences,
       isLoading 

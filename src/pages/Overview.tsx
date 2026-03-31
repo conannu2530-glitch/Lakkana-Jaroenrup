@@ -11,12 +11,16 @@ import {
   UserPlus
 } from 'lucide-react';
 import { Button, Badge, Avatar } from '../components/ui/Common';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Modal } from '../components/ui/Modal';
 import { format } from 'date-fns';
 import { cn } from '../lib/utils';
 
 const Overview: React.FC = () => {
   const { data, preferences, addProject } = useTasks();
+  const navigate = useNavigate();
+  const [isAddingProject, setIsAddingProject] = React.useState(false);
+  const [newProjectName, setNewProjectName] = React.useState('');
   
   // Mock recent activities since we don't have a real activity log
   const recentActivities = [
@@ -56,7 +60,7 @@ const Overview: React.FC = () => {
   const myTasks = data.tasks.filter(t => t.assigneeId === data.currentUser.id).slice(0, 3);
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col h-full transition-colors duration-300">
       {/* Welcome Header */}
       <div className="px-4 lg:px-8 py-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -76,16 +80,61 @@ const Overview: React.FC = () => {
           <Button 
             size="sm" 
             className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white border-none"
-            onClick={() => {
-              const name = prompt('Enter project name:');
-              if (name) addProject(name);
-            }}
+            onClick={() => setIsAddingProject(true)}
           >
             <Plus size={16} />
             New Project
           </Button>
         </div>
       </div>
+
+      {/* Add Project Modal */}
+      <Modal
+        isOpen={isAddingProject}
+        onClose={() => setIsAddingProject(false)}
+        title="Create New Project"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Project Name
+            </label>
+            <input
+              autoFocus
+              type="text"
+              placeholder="e.g., Website Redesign"
+              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 bg-transparent dark:text-white"
+              value={newProjectName}
+              onChange={(e) => setNewProjectName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && newProjectName.trim()) {
+                  addProject(newProjectName.trim());
+                  setNewProjectName('');
+                  setIsAddingProject(false);
+                  navigate('/dashboard');
+                }
+              }}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={() => setIsAddingProject(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (newProjectName.trim()) {
+                  addProject(newProjectName.trim());
+                  setNewProjectName('');
+                  setIsAddingProject(false);
+                  navigate('/dashboard');
+                }
+              }}
+            >
+              Create Project
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Overview Grid */}
       <div className="px-4 lg:px-8 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -165,28 +214,34 @@ const Overview: React.FC = () => {
             <p className="text-indigo-100 text-sm mt-2 relative z-10">You have completed 12 tasks this week. Keep it up!</p>
             
             <div className="mt-8 space-y-6 relative z-10">
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-medium">
-                  <span>Website Redesign</span>
-                  <span>65%</span>
-                </div>
-                <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-white w-[65%] rounded-full" />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-medium">
-                  <span>Product Launch</span>
-                  <span>42%</span>
-                </div>
-                <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-white w-[42%] rounded-full" />
-                </div>
-              </div>
+              {data.projects.slice(0, 3).map(project => {
+                const projectTasks = data.tasks.filter(t => t.projectId === project.id);
+                const completedTasks = projectTasks.filter(t => t.statusId === 's4');
+                const progress = projectTasks.length > 0 
+                  ? Math.round((completedTasks.length / projectTasks.length) * 100) 
+                  : 0;
+                
+                return (
+                  <div key={project.id} className="space-y-2">
+                    <div className="flex justify-between text-xs font-medium">
+                      <span>{project.name}</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-white rounded-full transition-all duration-500" 
+                        style={{ width: `${progress}%` }} 
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            <button className="w-full mt-10 bg-white/10 hover:bg-white/20 border border-white/20 py-3 rounded-xl text-sm font-bold transition-all backdrop-blur-sm relative z-10">
+            <button 
+              onClick={() => navigate('/analytics')}
+              className="w-full mt-10 bg-white/10 hover:bg-white/20 border border-white/20 py-3 rounded-xl text-sm font-bold transition-all backdrop-blur-sm relative z-10"
+            >
               View Analytics
             </button>
           </div>

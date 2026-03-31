@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X, MoreVertical, Edit2, Trash2, AlertTriangle } from 'lucide-react';
+import { Plus, X, MoreVertical, Edit2, Trash2, AlertTriangle, Calendar } from 'lucide-react';
 import { Status, Task } from '../../types';
 import { TaskCard } from './TaskCard';
 import { useTasks } from '../../context/TaskContext';
@@ -8,6 +8,7 @@ import { Modal } from '../ui/Modal';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { cn } from '../../lib/utils';
+import { format } from 'date-fns';
 
 interface KanbanColumnProps {
   status: Status;
@@ -19,6 +20,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, tasks, onTas
   const { addTask, activeProjectId, preferences, updateStatus, deleteStatus } = useTasks();
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+  const [newDueDate, setNewDueDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(status.title);
@@ -31,8 +33,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, tasks, onTas
 
   const handleAdd = () => {
     if (newTitle.trim()) {
-      addTask(activeProjectId, status.id, newTitle.trim());
+      addTask(activeProjectId, status.id, newTitle.trim(), new Date(newDueDate).toISOString());
       setNewTitle('');
+      setNewDueDate(format(new Date(), 'yyyy-MM-dd'));
       setIsAdding(false);
     }
   };
@@ -41,7 +44,8 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, tasks, onTas
     <div 
       ref={setNodeRef}
       className={cn(
-        "flex flex-col flex-shrink-0 bg-slate-100/50 dark:bg-slate-800/40 rounded-xl p-3 max-h-full border-2 transition-all duration-300",
+        "flex flex-col flex-shrink-0 rounded-xl p-3 max-h-full border-2 transition-all duration-300",
+        preferences.darkMode ? "bg-slate-800/40" : "bg-slate-100/50",
         preferences.compactView ? "w-[260px]" : "w-[300px]",
         isOver ? "border-blue-400 bg-blue-50/50 dark:bg-blue-900/20 border-dashed" : "border-transparent"
       )}
@@ -119,11 +123,11 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, tasks, onTas
         </SortableContext>
 
         {isAdding ? (
-          <div className="bg-white dark:bg-slate-900 p-3 rounded-lg shadow-sm border-2 border-blue-500">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-lg shadow-sm border-2 border-blue-500 space-y-3">
             <textarea
               autoFocus
               placeholder="What needs to be done?"
-              className="w-full text-sm border-none focus:ring-0 p-0 resize-none mb-2 bg-transparent dark:text-white dark:placeholder-slate-500"
+              className="w-full text-sm border-none focus:ring-0 p-0 resize-none bg-transparent dark:text-white dark:placeholder-slate-500"
               rows={2}
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
@@ -135,6 +139,15 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, tasks, onTas
                 if (e.key === 'Escape') setIsAdding(false);
               }}
             />
+            <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-md">
+              <Calendar size={14} className="text-slate-400" />
+              <input 
+                type="date" 
+                value={newDueDate}
+                onChange={(e) => setNewDueDate(e.target.value)}
+                className="flex-1 bg-transparent border-none text-[10px] font-medium p-0 text-slate-700 dark:text-slate-300 focus:ring-0 [color-scheme:light] dark:[color-scheme:dark]"
+              />
+            </div>
             <div className="flex items-center gap-2">
               <Button size="sm" onClick={handleAdd}>Add Task</Button>
               <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>

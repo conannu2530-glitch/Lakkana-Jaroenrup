@@ -4,7 +4,7 @@ import { ListView } from '../components/list/ListView';
 import { TaskModal } from '../components/tasks/TaskModal';
 import { KanbanSkeleton } from '../components/ui/Skeleton';
 import { useTasks } from '../context/TaskContext';
-import { Task } from '../types';
+import { Task, Priority } from '../types';
 import { LayoutGrid, List, Plus, Filter } from 'lucide-react';
 import { Button } from '../components/ui/Common';
 import { AnimatePresence } from 'motion/react';
@@ -15,6 +15,7 @@ const Dashboard: React.FC = () => {
   const [view, setView] = useState<'board' | 'list'>('board');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
+  const activeProject = data.projects.find(p => p.id === activeProjectId);
   const projectTasks = data.tasks.filter(t => t.projectId === activeProjectId);
 
   return (
@@ -25,7 +26,9 @@ const Dashboard: React.FC = () => {
         preferences.compactView ? "py-3" : "py-6"
       )}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Project Overview</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            {activeProject ? activeProject.name : 'Project Overview'}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">Manage your team's workflow and track progress.</p>
         </div>
 
@@ -54,7 +57,22 @@ const Dashboard: React.FC = () => {
           <Button 
             size="sm" 
             className="gap-2"
-            onClick={() => addTask(activeProjectId, data.statuses[0].id, 'New Task')}
+            onClick={() => {
+              const newTaskId = addTask(activeProjectId, data.statuses[0].id, 'New Task');
+              const newTask = {
+                id: newTaskId,
+                projectId: activeProjectId,
+                statusId: data.statuses[0].id,
+                title: 'New Task',
+                description: '',
+                assigneeId: data.currentUser.id,
+                priority: 'Medium' as Priority,
+                dueDate: new Date().toISOString(),
+                tags: [],
+                comments: []
+              };
+              setSelectedTask(newTask);
+            }}
           >
             <Plus size={16} />
             Add Task
